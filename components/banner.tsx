@@ -1,36 +1,98 @@
 "use client"
-import Image from "next/image"
+
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 
-const travelImages = [
-  "/placeholder.svg?height=1080&width=1920",
-  "/placeholder.svg?height=1080&width=1920&text=Beach+Paradise",
-  "/placeholder.svg?height=1080&width=1920&text=Mountain+Adventure",
-  "/placeholder.svg?height=1080&width=1920&text=City+Exploration",
+// Define the banner configuration interface
+interface BannerConfig {
+  title: string
+  subtitle: string
+  backgroundColor: string
+  textColor: string
+  overlayOpacity: number
+  fontSize: number
+  imageIndex: number
+  showMountains: boolean
+  showSun: boolean
+  animationSpeed?: number
+}
+
+// Define the component props interface
+interface BannerProps {
+  config: BannerConfig
+}
+
+// Define particle type
+interface Particle {
+  id: number
+  left: string
+  top: string
+  duration: number
+}
+
+// Local placeholder images that work without configuration
+const bannerImages = [
+  "https://res.cloudinary.com/dxhx45ing/image/upload/v1742311690/pexels-photo-546819_wsgr9d.jpg",
+  "https://res.cloudinary.com/dxhx45ing/image/upload/v1742311776/pexels-photo-326502_mfuywt.jpg",
+  "https://res.cloudinary.com/dxhx45ing/image/upload/v1739539793/weld-hot-soldering-radio-welder-73833_xxktzj.jpg",
+  "https://res.cloudinary.com/dxhx45ing/image/upload/v1739800941/pexels-photo-7743261_w4rajm.jpg",
 ]
 
-export default function Banner({ config }) {
-  const { title, subtitle, backgroundColor, textColor, overlayOpacity, fontSize, imageIndex, showMountains, showSun } =
-    config
+export default function Banner({ config }: BannerProps) {
+  const {
+    title,
+    subtitle,
+    backgroundColor,
+    textColor,
+    overlayOpacity,
+    fontSize,
+    imageIndex,
+    showMountains,
+    showSun,
+    animationSpeed = 2,
+  } = config
+
+  // State to track client-side rendering
+  const [isClient, setIsClient] = useState(false)
+
+  // State for particles
+  const [particles, setParticles] = useState<Particle[]>([])
+
+  // Generate particles only on the client side
+  useEffect(() => {
+    setIsClient(true)
+
+    // Generate random particles
+    const newParticles = Array.from({ length: 10 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      duration: animationSpeed + Math.random() * 2,
+    }))
+
+    setParticles(newParticles)
+  }, [animationSpeed])
 
   // Calculate font sizes based on the slider value
   const titleSize = `${1.5 + fontSize * 0.5}rem`
   const subtitleSize = `${1 + fontSize * 0.25}rem`
 
+  // Animation speed factor
+  const speedFactor = 6 - animationSpeed
+
   return (
     <div className="relative w-full h-[50vh] md:h-[60vh] overflow-hidden">
       {/* Background Image */}
-      <Image
-        src={travelImages[imageIndex] || "/placeholder.svg"}
-        alt="Travel destination"
-        fill
-        priority
-        className="object-cover"
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
+        style={{
+          backgroundImage: `url(${bannerImages[imageIndex % bannerImages.length]})`,
+        }}
       />
 
       {/* Color Overlay */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 transition-all duration-500"
         style={{
           backgroundColor: backgroundColor,
           opacity: overlayOpacity,
@@ -65,9 +127,37 @@ export default function Banner({ config }) {
           }}
           transition={{
             repeat: Number.POSITIVE_INFINITY,
-            duration: 4,
+            duration: speedFactor,
           }}
         />
+      )}
+
+      {/* Floating Particles - Only rendered on client side */}
+      {isClient && (
+        <div className="absolute inset-0 overflow-hidden">
+          {particles.map((particle) => (
+            <motion.div
+              key={particle.id}
+              className="absolute w-3 h-3 rounded-full"
+              style={{
+                backgroundColor: textColor,
+                opacity: 0.3,
+                left: particle.left,
+                top: particle.top,
+              }}
+              animate={{
+                x: [0, Math.random() * 100 - 50],
+                y: [0, Math.random() * 100 - 50],
+                opacity: [0.3, 0.7, 0.3],
+              }}
+              transition={{
+                repeat: Number.POSITIVE_INFINITY,
+                duration: particle.duration,
+                repeatType: "reverse",
+              }}
+            />
+          ))}
+        </div>
       )}
 
       {/* Text Content */}

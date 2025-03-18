@@ -1,4 +1,6 @@
 "use client"
+
+import type React from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
@@ -7,29 +9,49 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-export default function ControlPanel({ config, updateConfig }) {
+// Define the banner configuration interface
+interface BannerConfig {
+  title: string
+  subtitle: string
+  backgroundColor: string
+  textColor: string
+  overlayOpacity: number
+  fontSize: number
+  imageIndex: number
+  showMountains: boolean
+  showSun: boolean
+  animationSpeed?: number
+}
+
+// Define the component props interface
+interface ControlPanelProps {
+  config: BannerConfig
+  updateConfig: (newConfig: Partial<BannerConfig>) => void
+}
+
+export default function ControlPanel({ config, updateConfig }: ControlPanelProps) {
   // Handle text changes
-  const handleTextChange = (e) => {
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateConfig({ [e.target.name]: e.target.value })
   }
 
   // Handle color changes
-  const handleColorChange = (e) => {
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateConfig({ [e.target.name]: e.target.value })
   }
 
   // Handle slider changes
-  const handleSliderChange = (name, value) => {
+  const handleSliderChange = (name: string, value: number[]) => {
     updateConfig({ [name]: value[0] })
   }
 
   // Handle switch changes
-  const handleSwitchChange = (name, checked) => {
+  const handleSwitchChange = (name: string, checked: boolean) => {
     updateConfig({ [name]: checked })
   }
 
   // Handle select changes
-  const handleSelectChange = (name, value) => {
+  const handleSelectChange = (name: string, value: string) => {
     updateConfig({ [name]: Number.parseInt(value) })
   }
 
@@ -73,7 +95,7 @@ export default function ControlPanel({ config, updateConfig }) {
             </div>
 
             <div className="space-y-2">
-              <Label>Font Size: {config.fontSize}</Label>
+              <Label>Font Size: {config.fontSize.toFixed(1)}</Label>
               <Slider
                 defaultValue={[config.fontSize]}
                 min={1}
@@ -147,10 +169,10 @@ export default function ControlPanel({ config, updateConfig }) {
                   <SelectValue placeholder="Select an image" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="0">Tropical Beach</SelectItem>
-                  <SelectItem value="1">Beach Paradise</SelectItem>
-                  <SelectItem value="2">Mountain Adventure</SelectItem>
-                  <SelectItem value="3">City Exploration</SelectItem>
+                  <SelectItem value="0">Code</SelectItem>
+                  <SelectItem value="1">Design</SelectItem>
+                  <SelectItem value="2">Create</SelectItem>
+                  <SelectItem value="3">Innovate</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -175,6 +197,19 @@ export default function ControlPanel({ config, updateConfig }) {
                 onCheckedChange={(checked) => handleSwitchChange("showSun", checked)}
               />
             </div>
+
+            {config.animationSpeed !== undefined && (
+              <div className="space-y-2">
+                <Label>Animation Speed: {config.animationSpeed.toFixed(1)}</Label>
+                <Slider
+                  defaultValue={[config.animationSpeed]}
+                  min={1}
+                  max={5}
+                  step={0.1}
+                  onValueChange={(value) => handleSliderChange("animationSpeed", value)}
+                />
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </CardContent>
