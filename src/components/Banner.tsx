@@ -1,6 +1,25 @@
 "use client"
 import { motion } from "framer-motion"
 
+// Define the banner configuration interface
+interface BannerConfig {
+  title: string
+  subtitle: string
+  backgroundColor: string
+  textColor: string
+  overlayOpacity: number
+  fontSize: number
+  imageIndex: number
+  showMountains: boolean
+  showSun: boolean
+  animationSpeed: number
+}
+
+// Define the component props interface
+interface BannerProps {
+  config: BannerConfig
+}
+
 // Local placeholder images that work without configuration
 const bannerImages = [
   "/placeholder.svg?height=1080&width=1920&text=Code",
@@ -9,7 +28,7 @@ const bannerImages = [
   "/placeholder.svg?height=1080&width=1920&text=Innovate",
 ]
 
-export default function Banner({ config }) {
+export default function Banner({ config }: BannerProps) {
   const {
     title,
     subtitle,
